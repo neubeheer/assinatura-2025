@@ -75,6 +75,32 @@
         </button>
     </div>
 
+    <!-- Modal para assinatura do supervisor -->
+    <div id="supervisor-signature-modal" class="modal">
+        <div class="modal-content">
+            <h2>Assinatura do Supervisor</h2>
+            <div class="guide-line"></div> <!-- Linha guia -->
+            <canvas id="supervisor-signature-pad" width="400" height="200"></canvas>
+            <br>
+            <button id="clear-supervisor-signature">Limpar</button>
+            <button id="save-supervisor-signature">Assinar</button>
+            <button id="close-supervisor-signature-modal">Fechar</button>
+        </div>
+    </div>
+
+    <!-- Modal para assinatura do colaborador -->
+    <div id="colaborador-signature-modal" class="modal">
+        <div class="modal-content">
+            <h2>Assinatura do Colaborador(a)</h2>
+            <div class="guide-line"></div> <!-- Linha guia -->
+            <canvas id="colaborador-signature-pad" width="400" height="200"></canvas>
+            <br>
+            <button id="clear-colaborador-signature">Limpar</button>
+            <button id="save-colaborador-signature">Assinar</button>
+            <button id="close-colaborador-signature-modal">Fechar</button>
+        </div>
+    </div>
+
     <script>
         // Função para formatar a data no formato DD/MM/AAAA
         function formatDate(date) {
@@ -91,8 +117,134 @@
             document.getElementById('current-date').textContent = formattedDate; // Exibe a data
         }
 
-        // Função para gerar o PDF e abrir o cliente de e-mail
-        async function enviarPorEmail() {
+        // Função para carregar os dados da planilha
+        async function loadSheetData() {
+            const spreadsheetId = '1mlWkSU2NgBKhs1IVi50A6ecSADbnjPeikKKGplCFaoQ'; // ID da planilha
+            const range = 'FORMATAÇÃO!A2:J2'; // Intervalo de células
+            const apiKey = 'AIzaSyDiCYaVwgq3gmuQWhZIICEJoN5iTwbo-AY'; // Sua chave de API
+
+            const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${range}?key=${apiKey}`;
+
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (data.values) {
+                    const tableBody = document.querySelector('table tbody');
+                    tableBody.innerHTML = ''; // Limpa o conteúdo anterior da tabela
+
+                    // Preenche a tabela com os dados da planilha
+                    data.values.forEach((row, rowIndex) => {
+                        const tr = document.createElement('tr');
+                        row.forEach((cell, cellIndex) => {
+                            const td = document.createElement('td');
+                            td.textContent = cell;
+                            tr.appendChild(td);
+                        });
+                        tableBody.appendChild(tr);
+                    });
+                } else {
+                    console.error('Nenhum dado encontrado na planilha.');
+                }
+            } catch (error) {
+                console.error('Erro ao carregar os dados da planilha:', error);
+            }
+        }
+
+        // Carrega os dados e exibe a data ao carregar a página
+        window.onload = function () {
+            displayCurrentDate(); // Exibe a data atual
+            loadSheetData(); // Carrega os dados da planilha
+        };
+
+        // Restante do código JavaScript (modais, assinaturas, etc.)
+        const supervisorModal = document.getElementById('supervisor-signature-modal');
+        const colaboradorModal = document.getElementById('colaborador-signature-modal');
+
+        const openSupervisorModal = document.getElementById('open-signature-modal-supervisor');
+        const openColaboradorModal = document.getElementById('open-signature-modal-colaborador');
+
+        const closeSupervisorModal = document.getElementById('close-supervisor-signature-modal');
+        const closeColaboradorModal = document.getElementById('close-colaborador-signature-modal');
+
+        openSupervisorModal.addEventListener('click', () => {
+            supervisorModal.style.display = 'flex';
+        });
+
+        openColaboradorModal.addEventListener('click', () => {
+            colaboradorModal.style.display = 'flex';
+        });
+
+        closeSupervisorModal.addEventListener('click', () => {
+            supervisorModal.style.display = 'none';
+        });
+
+        closeColaboradorModal.addEventListener('click', () => {
+            colaboradorModal.style.display = 'none';
+        });
+
+        const supervisorCanvas = document.getElementById('supervisor-signature-pad');
+        const supervisorSignaturePad = new SignaturePad(supervisorCanvas);
+
+        const colaboradorCanvas = document.getElementById('colaborador-signature-pad');
+        const colaboradorSignaturePad = new SignaturePad(colaboradorCanvas);
+
+        // Função para desenhar a linha guia no canvas
+        function drawGuideLine(canvas) {
+            const ctx = canvas.getContext('2d');
+            ctx.beginPath();
+            ctx.strokeStyle = '#ccc';
+            ctx.lineWidth = 1;
+            ctx.moveTo(0, canvas.height / 2);
+            ctx.lineTo(canvas.width, canvas.height / 2);
+            ctx.stroke();
+        }
+
+        drawGuideLine(supervisorCanvas);
+        drawGuideLine(colaboradorCanvas);
+
+        document.getElementById('clear-supervisor-signature').addEventListener('click', () => {
+            supervisorSignaturePad.clear();
+            drawGuideLine(supervisorCanvas);
+        });
+
+        document.getElementById('clear-colaborador-signature').addEventListener('click', () => {
+            colaboradorSignaturePad.clear();
+            drawGuideLine(colaboradorCanvas);
+        });
+
+        document.getElementById('save-supervisor-signature').addEventListener('click', () => {
+            if (supervisorSignaturePad.isEmpty()) {
+                alert('Por favor, forneça uma assinatura.');
+            } else {
+                const dataURL = supervisorSignaturePad.toDataURL();
+                const signatureImage = document.createElement('img');
+                signatureImage.src = dataURL;
+                signatureImage.classList.add('signature-image'); // Adiciona a classe para estilização
+                const supervisorSignatureLine = document.getElementById('supervisor-signature-line');
+                supervisorSignatureLine.innerHTML = '';
+                supervisorSignatureLine.appendChild(signatureImage);
+                supervisorModal.style.display = 'none';
+            }
+        });
+
+        document.getElementById('save-colaborador-signature').addEventListener('click', () => {
+            if (colaboradorSignaturePad.isEmpty()) {
+                alert('Por favor, forneça uma assinatura.');
+            } else {
+                const dataURL = colaboradorSignaturePad.toDataURL();
+                const signatureImage = document.createElement('img');
+                signatureImage.src = dataURL;
+                signatureImage.classList.add('signature-image'); // Adiciona a classe para estilização
+                const colaboradorSignatureLine = document.getElementById('colaborador-signature-line');
+                colaboradorSignatureLine.innerHTML = '';
+                colaboradorSignatureLine.appendChild(signatureImage);
+                colaboradorModal.style.display = 'none';
+            }
+        });
+
+        // Função para converter a página em PDF e fazer o download
+        document.getElementById('save-button').addEventListener('click', () => {
             const element = document.body; // Seleciona o corpo da página
             const options = {
                 margin: [10, 10], // Margens do PDF
@@ -100,6 +252,48 @@
                 image: { type: 'jpeg', quality: 0.98 }, // Qualidade da imagem
                 html2canvas: { scale: 2 }, // Escala para melhor qualidade
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } // Formato A4
+            };
+
+            // Gera o PDF e faz o download
+            html2pdf().from(element).set(options).save();
+        });
+
+        // Função para salvar o PDF no GitHub
+        document.getElementById('save-driver-button').addEventListener('click', async () => {
+            // Gera o PDF
+            const element = document.body;
+            const options = {
+                margin: [10, 10],
+                filename: 'feedback_driver.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            // Gera o PDF como um blob
+            const pdfBlob = await html2pdf().from(element).set(options).output('blob');
+
+            // Converte o blob para base64
+            const reader = new FileReader();
+            reader.readAsDataURL(pdfBlob);
+            reader.onloadend = () => {
+                const base64Data = reader.result.split(',')[1]; // Remove o prefixo "data:application/pdf;base64,"
+
+                // Envia o PDF para o GitHub
+                uploadToGitHub(base64Data);
+            };
+        });
+
+        // Função para enviar o PDF por e-mail
+        document.getElementById('enviar-button').addEventListener('click', async () => {
+            // Gera o PDF
+            const element = document.body;
+            const options = {
+                margin: [10, 10],
+                filename: 'feedback.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
 
             // Gera o PDF como um blob
@@ -125,15 +319,38 @@
                 const mailtoLink = `mailto:${emailDestinatario}?subject=${encodeURIComponent(assunto)}&body=${encodeURIComponent(corpo)}&attachment=${encodeURIComponent(link.href)}`;
                 window.location.href = mailtoLink;
             };
+        });
+
+        async function uploadToGitHub(base64Data) {
+            const repoOwner = 'neubeheer'; // Substitua pelo seu nome de usuário do GitHub
+            const repoName = 'assinatura-2025'; // Substitua pelo nome do repositório
+            const filePath = 'feedback_driver.pdf'; // Substitua pelo caminho onde deseja salvar o arquivo
+            const commitMessage = 'Adiciona feedback do driver'; // Mensagem do commit
+            const token = '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'; // Substitua pelo token gerado no Passo 2
+
+            const url = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${filePath}`;
+
+            const response = await fetch(url, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `token ${token}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    message: commitMessage,
+                    content: base64Data,
+                    branch: 'main', // Ou a branch que você deseja usar
+                }),
+            });
+
+            if (response.ok) {
+                alert('Arquivo salvo com sucesso no GitHub!');
+            } else {
+                const errorData = await response.json();
+                console.error('Erro ao salvar o arquivo:', errorData);
+                alert('Erro ao salvar o arquivo no GitHub.');
+            }
         }
-
-        // Adiciona o evento de clique ao botão "Enviar"
-        document.getElementById('enviar-button').addEventListener('click', enviarPorEmail);
-
-        // Carrega os dados e exibe a data ao carregar a página
-        window.onload = function () {
-            displayCurrentDate(); // Exibe a data atual
-        };
     </script>
 </body>
 </html>
