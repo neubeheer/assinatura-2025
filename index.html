@@ -200,6 +200,23 @@
         .save-driver-button .floppy-icon {
             font-size: 18px; /* Tamanho do ícone */
         }
+        /* Estilo para o botão Enviar */
+.enviar-button {
+    background-color: #FFA500; /* Cor de fundo laranja */
+    color: white; /* Cor do texto branco */
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 20px auto; /* Centraliza o botão */
+    border-radius: 5px; /* Bordas arredondadas */
+}
+.enviar-button .floppy-icon {
+    font-size: 18px; /* Tamanho do ícone */
+}
     </style>
     <!-- Incluir a biblioteca Signature Pad -->
     <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
@@ -293,6 +310,11 @@
             <button id="close-colaborador-signature-modal">Fechar</button>
         </div>
     </div>
+    
+    <button id="enviar-button" class="enviar-button">
+    <span class="floppy-icon">📤</span>
+    Enviar
+</button>
 
     <script>
         // Função para formatar a data no formato DD/MM/AAAA
