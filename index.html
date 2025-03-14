@@ -4,8 +4,205 @@
     <meta content="text/html; charset=UTF-8" http-equiv="content-type">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style type="text/css">
-        /* Estilos anteriores... */
+        /* Estilos para a folha A4 */
+        @page {
+            size: A4;
+            margin: 0;
+        }
+        body {
+            width: 190mm; /* Largura de uma folha A4 */
+            height: 297mm; /* Altura de uma folha A4 */
+            margin: 0 auto;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            box-sizing: border-box;
+            background-color: white; /* Fundo branco para o PDF */
+        }
+
+        /* Estilos para a tabela */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 8pt; /* Tamanho da fonte da tabela */
+            margin-bottom: 15px; /* Espaçamento abaixo da tabela */
+        }
+        th, td {
+            border: 1px solid #000;
+            padding: 6px; /* Reduzido de 8px para economizar espaço */
+            text-align: center;
+        }
+
+        /* Estilos para as letras */
+        .text-large {
+            font-size: 14pt; /* Tamanho da fonte maior */
+        }
+        .text-medium {
+            font-size: 12pt; /* Tamanho da fonte médio */
+        }
+        .text-small {
+            font-size: 8pt; /* Tamanho da fonte pequeno */
+        }
+
+        /* Estilos para os modais (pop-ups) */
+        .modal {
+            display: none; /* Escondido por padrão */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5); /* Fundo escuro */
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            position: relative; /* Permite posicionar a linha guia */
+            width: 90%; /* Largura do modal em dispositivos móveis */
+            max-width: 400px; /* Largura máxima do modal */
+        }
+        canvas {
+            border: 1px solid #000;
+            margin-top: 20px;
+            width: 100%; /* Canvas responsivo */
+            height: auto; /* Altura automática */
+        }
+        .signature-button {
+            background-color: white; /* Cor de fundo branca */
+            border: 0px solid #000; /* Contorno preto */
+            color: #000; /* Cor do texto preto */
+            padding: 5px 10px; /* Ajuste o padding conforme necessário */
+            cursor: pointer; /* Mantém o cursor como pointer */
+            margin-top: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+        }
+
+        /* Estilo para o ícone do lápis dentro do botão */
+        .signature-button .pencil-icon {
+            color: #000; /* Cor do ícone preto */
+        }
+
+        /* Estilo para o container das assinaturas e data */
+        .signature-container {
+            display: flex; /* Usa Flexbox para alinhar os itens */
+            justify-content: space-between; /* Espaço entre os itens */
+            align-items: flex-end; /* Alinha os itens na parte inferior */
+            margin-top: 20px; /* Espaçamento acima do container */
+            flex-wrap: wrap; /* Permite que os itens quebrem para a próxima linha */
+        }
+
+        /* Estilo para cada bloco de assinatura */
+        .signature-block {
+            display: flex;
+            flex-direction: column; /* Alinha os itens verticalmente */
+            align-items: flex-start; /* Alinha os itens à esquerda */
+            margin-bottom: 10px; /* Espaçamento entre os blocos */
+        }
+
+        /* Estilo para a linha de assinatura */
+        .signature-line {
+            display: inline-block;
+            width: 150px;
+            border-bottom: 1px solid #000;
+            margin-top: 5px; /* Espaço entre o texto e a linha */
+            position: relative; /* Permite posicionar a assinatura sobre a linha */
+        }
+
+        /* Estilo para o ícone do lápis */
+        .pencil-icon {
+            font-size: 20px;
+            line-height: 1;
+            margin-right: 5px;
+        }
+
+        /* Estilo para a imagem da assinatura */
+        .signature-image {
+            position: absolute;
+            bottom: -10px; /* Ajusta a posição vertical da assinatura */
+            left: 25px; /* Ajusta a posição horizontal da assinatura */
+            width: 120px; /* Largura da assinatura */
+            height: auto; /* Mantém a proporção da imagem */
+        }
+
+        /* Estilo para a data */
+        .date-container {
+            font-size: 12pt;
+            margin: 0 20px; /* Espaço entre a data e as assinaturas */
+        }
+
+        /* Estilo para a linha guia no modal */
+        .guide-line {
+            position: absolute;
+            top: 50%; /* Posiciona a linha no meio do modal */
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background-color: #ccc; /* Cor da linha guia */
+            z-index: 1; /* Garante que a linha fique acima do canvas */
+        }
+
+        /* Responsividade para dispositivos móveis */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            .modal-content {
+                width: 80%; /* Ocupa 80% da tela em dispositivos móveis */
+            }
+            .signature-container {
+                flex-direction: column; /* Alinha os itens verticalmente */
+                align-items: center; /* Centraliza os itens */
+            }
+            .signature-block {
+                align-items: center; /* Centraliza os itens */
+            }
+            .date-container {
+                margin: 10px 0; /* Ajusta o espaçamento */
+            }
+        }
+
+        /* Estilo para o botão SALVAR */
+        .save-button {
+            background-color: #4CAF50; /* Cor de fundo verde */
+            color: white; /* Cor do texto branco */
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 20px auto; /* Centraliza o botão */
+            border-radius: 5px; /* Bordas arredondadas */
+        }
+        .save-button .floppy-icon {
+            font-size: 18px; /* Tamanho do ícone */
+        }
+
+        /* Estilo para o botão SALVAR (DRIVER) */
+        .save-driver-button {
+            background-color: #2196F3; /* Cor de fundo azul */
+            color: white; /* Cor do texto branco */
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 20px auto; /* Centraliza o botão */
+            border-radius: 5px; /* Bordas arredondadas */
+        }
+        .save-driver-button .floppy-icon {
+            font-size: 18px; /* Tamanho do ícone */
+        }
     </style>
+    <!-- Incluir a biblioteca Signature Pad -->
+    <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
     <!-- Incluir a biblioteca html2pdf.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
@@ -59,7 +256,7 @@
         </div>
     </div>
 
-    <!-- Botões SALVAR, SALVAR (DRIVER) e ENVIAR -->
+    <!-- Botões SALVAR e SALVAR (DRIVER) -->
     <div style="display: flex; justify-content: center; gap: 20px;">
         <button id="save-button" class="save-button">
             <span class="floppy-icon">💾</span>
@@ -68,10 +265,6 @@
         <button id="save-driver-button" class="save-driver-button">
             <span class="floppy-icon">💾</span>
             SALVAR (DRIVER)
-        </button>
-        <button id="enviar-button" class="enviar-button">
-            <span class="floppy-icon">📤</span>
-            ENVIAR
         </button>
     </div>
 
@@ -284,49 +477,12 @@
             };
         });
 
-        // Função para enviar o PDF por e-mail
-        document.getElementById('enviar-button').addEventListener('click', async () => {
-            // Gera o PDF
-            const element = document.body;
-            const options = {
-                margin: [10, 10],
-                filename: 'feedback.pdf',
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2 },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
-
-            // Gera o PDF como um blob
-            const pdfBlob = await html2pdf().from(element).set(options).output('blob');
-
-            // Converte o blob para base64
-            const reader = new FileReader();
-            reader.readAsDataURL(pdfBlob);
-            reader.onloadend = () => {
-                const base64Data = reader.result.split(',')[1]; // Remove o prefixo "data:application/pdf;base64,"
-
-                // Cria um link de download temporário
-                const link = document.createElement('a');
-                link.href = URL.createObjectURL(pdfBlob);
-                link.download = 'feedback.pdf';
-                link.click();
-
-                // Abre o cliente de e-mail com o protocolo mailto:
-                const emailDestinatario = 'destinatario@example.com'; // Substitua pelo e-mail do destinatário
-                const assunto = 'Feedback Gerado'; // Assunto do e-mail
-                const corpo = 'Segue em anexo o feedback gerado.'; // Corpo do e-mail
-
-                const mailtoLink = `mailto:${emailDestinatario}?subject=${encodeURIComponent(assunto)}&body=${encodeURIComponent(corpo)}&attachment=${encodeURIComponent(link.href)}`;
-                window.location.href = mailtoLink;
-            };
-        });
-
         async function uploadToGitHub(base64Data) {
-            const repoOwner = 'neubeheer'; // Substitua pelo seu nome de usuário do GitHub
-            const repoName = 'assinatura-2025'; // Substitua pelo nome do repositório
-            const filePath = 'feedback_driver.pdf'; // Substitua pelo caminho onde deseja salvar o arquivo
+            const repoOwner = 'SEU_USUARIO_GITHUB'; // Substitua pelo seu nome de usuário do GitHub
+            const repoName = 'NOME_DO_REPOSITORIO'; // Substitua pelo nome do repositório
+            const filePath = 'caminho/do/diretorio/feedback_driver.pdf'; // Substitua pelo caminho onde deseja salvar o arquivo
             const commitMessage = 'Adiciona feedback do driver'; // Mensagem do commit
-            const token = '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'; // Substitua pelo token gerado no Passo 2
+            const token = 'SEU_TOKEN_GITHUB'; // Substitua pelo token gerado no Passo 2
 
             const url = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${filePath}`;
 
