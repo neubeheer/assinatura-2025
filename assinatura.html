@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assinatura Eletrônica</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+        }
+        canvas {
+            border: 1px solid #000;
+            background-color: #fff;
+            cursor: crosshair;
+        }
+        button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Desenhe sua Assinatura</h1>
+    <canvas id="signatureCanvas" width="500" height="200"></canvas>
+    <br>
+    <button onclick="salvarAssinatura()">Assinar</button>
+    <button onclick="limparCanvas()">Limpar</button>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.2.4/fabric.min.js"></script>
+    <script>
+        const canvas = new fabric.Canvas('signatureCanvas', { isDrawingMode: true });
+
+        function salvarAssinatura() {
+            const dataURL = canvas.toDataURL();
+            localStorage.setItem('assinatura', dataURL);
+            window.close();
+        }
+
+        function limparCanvas() {
+            canvas.clear();
+        }
+    </script>
+</body>
+</html>
