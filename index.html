@@ -6,6 +6,8 @@
     <style type="text/css">
         /* Estilos anteriores... */
     </style>
+    <!-- Incluir a biblioteca html2pdf.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
     <div>
@@ -241,23 +243,114 @@
             }
         });
 
-        // Função para enviar o conteúdo HTML por e-mail
-        document.getElementById('enviar-email-button').addEventListener('click', () => {
-            // Captura o conteúdo HTML da página
-            const conteudoHTML = document.documentElement.outerHTML;
+        // Função para converter a página em PDF e fazer o download
+        document.getElementById('save-button').addEventListener('click', () => {
+            const element = document.body; // Seleciona o corpo da página
+            const options = {
+                margin: [10, 10], // Margens do PDF
+                filename: 'feedback.pdf', // Nome do arquivo
+                image: { type: 'jpeg', quality: 0.98 }, // Qualidade da imagem
+                html2canvas: { scale: 2 }, // Escala para melhor qualidade
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } // Formato A4
+            };
 
-            // Codifica o conteúdo HTML para ser enviado no corpo do e-mail
-            const conteudoCodificado = encodeURIComponent(conteudoHTML);
-
-            // Configura o e-mail
-            const emailDestinatario = 'jefferson.mk.torres@gmail.com'; // E-mail do destinatário
-            const assunto = 'Assinatura 2025'; // Assunto do e-mail
-            const corpo = `Segue o conteúdo HTML:\n\n${conteudoCodificado}`; // Corpo do e-mail
-
-            // Abre o cliente de e-mail padrão do usuário
-            const mailtoLink = `mailto:${emailDestinatario}?subject=${encodeURIComponent(assunto)}&body=${corpo}`;
-            window.location.href = mailtoLink;
+            // Gera o PDF e faz o download
+            html2pdf().from(element).set(options).save();
         });
+
+        // Função para salvar o PDF no GitHub
+        document.getElementById('save-driver-button').addEventListener('click', async () => {
+            // Gera o PDF
+            const element = document.body;
+            const options = {
+                margin: [10, 10],
+                filename: 'feedback_driver.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            // Gera o PDF como um blob
+            const pdfBlob = await html2pdf().from(element).set(options).output('blob');
+
+            // Converte o blob para base64
+            const reader = new FileReader();
+            reader.readAsDataURL(pdfBlob);
+            reader.onloadend = () => {
+                const base64Data = reader.result.split(',')[1]; // Remove o prefixo "data:application/pdf;base64,"
+
+                // Envia o PDF para o GitHub
+                uploadToGitHub(base64Data);
+            };
+        });
+
+        // Função para enviar o PDF por e-mail
+        document.getElementById('enviar-email-button').addEventListener('click', async () => {
+            // Gera o PDF
+            const element = document.body;
+            const options = {
+                margin: [10, 10],
+                filename: 'feedback.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            // Gera o PDF como um blob
+            const pdfBlob = await html2pdf().from(element).set(options).output('blob');
+
+            // Converte o blob para base64
+            const reader = new FileReader();
+            reader.readAsDataURL(pdfBlob);
+            reader.onloadend = () => {
+                const base64Data = reader.result.split(',')[1]; // Remove o prefixo "data:application/pdf;base64,"
+
+                // Cria um link de download temporário
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(pdfBlob);
+                link.download = 'feedback.pdf';
+                link.click();
+
+                // Abre o cliente de e-mail com o protocolo mailto:
+                const emailDestinatario = 'jefferson.mk.torres@gmail.com'; // E-mail do destinatário
+                const assunto = 'Assinatura 2025'; // Assunto do e-mail
+                const corpo = 'Segue em anexo o feedback gerado.'; // Corpo do e-mail
+
+                const mailtoLink = `mailto:${emailDestinatario}?subject=${encodeURIComponent(assunto)}&body=${encodeURIComponent(corpo)}&attachment=${encodeURIComponent(link.href)}`;
+                window.location.href = mailtoLink;
+            };
+        });
+
+        async function uploadToGitHub(base64Data) {
+            const repoOwner = 'SEU_USUARIO_GITHUB'; // Substitua pelo seu nome de usuário do GitHub
+            const repoName = 'NOME_DO_REPOSITORIO'; // Substitua pelo nome do repositório
+            const filePath = 'caminho/do/diretorio/feedback_driver.pdf'; // Substitua pelo caminho onde deseja salvar o arquivo
+            const commitMessage = 'Adiciona feedback do driver'; // Mensagem do commit
+            const token = 'SEU_TOKEN_GITHUB'; // Substitua pelo token gerado no Passo 2
+
+            const url = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${filePath}`;
+
+            const response = await fetch(url, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `token ${token}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    message: commitMessage,
+                    content: base64Data,
+                    branch: 'main', // Ou a branch que você deseja usar
+                }),
+            });
+
+            if (response.ok) {
+                alert('Arquivo salvo com sucesso no GitHub!');
+            } else {
+                const errorData = await response.json();
+                console.error('Erro ao salvar o arquivo:', errorData);
+                alert('Erro ao salvar o arquivo no GitHub.');
+            }
+        }
     </script>
 </body>
 </html>
