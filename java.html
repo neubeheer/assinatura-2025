@@ -4,21 +4,32 @@
     <title>Atualizar Planilha</title>
 </head>
 <body>
-    <button onclick="updateSheet()">Clique para Atualizar a Planilha</button>
+    <button onclick="authenticateAndUpdate()">Clique para Atualizar a Planilha</button>
 
     <script>
-        async function updateSheet() {
-            const API_KEY = 'AIzaSyDiCYaVwgq3gmuQWhZIICEJoN5iTwbo-AY'; // Substitua pela sua chave de API
-            const SPREADSHEET_ID = '1mlWkSU2NgBKhs1IVi50A6ecSADbnjPeikKKGplCFaoQ'; // Substitua pelo ID da sua planilha
-            const RANGE = 'Assinaturas!A2'; // Substitua pelo intervalo que você deseja atualizar
+        const CLIENT_ID = '294178735486-7b0frruftk7eb59omb96k1sph7vb1hhr.apps.googleusercontent.com'; // Substitua pelo seu ID do cliente OAuth
+        const API_KEY = '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'; // Substitua pela sua chave de API
+        const SPREADSHEET_ID = '1mlWkSU2NgBKhs1IVi50A6ecSADbnjPeikKKGplCFaoQ'; // Substitua pelo ID da sua planilha
+        const RANGE = 'Assinaturas!A2'; // Substitua pelo intervalo que você deseja atualizar
 
-            const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${encodeURIComponent(RANGE)}?valueInputOption=RAW&key=${API_KEY}`;
+        let accessToken = null;
+
+        // Função para autenticar com OAuth 2.0
+        function authenticateAndUpdate() {
+            const authUrl = `https://accounts.google.com/o/oauth2/auth?client_id=${CLIENT_ID}&redirect_uri=http://localhost:8080&response_type=token&scope=https://www.googleapis.com/auth/spreadsheets`;
+            window.location.href = authUrl;
+        }
+
+        // Função para atualizar a planilha
+        async function updateSheet() {
+            const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${encodeURIComponent(RANGE)}?valueInputOption=RAW`;
 
             try {
                 const response = await fetch(url, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${accessToken}`,
                     },
                     body: JSON.stringify({
                         values: [['Novo Valor']], // Novo valor a ser inserido
@@ -26,8 +37,7 @@
                 });
 
                 if (!response.ok) {
-                    const errorDetails = await response.json();
-                    throw new Error(`Erro ao atualizar a planilha: ${JSON.stringify(errorDetails)}`);
+                    throw new Error('Erro ao atualizar a planilha');
                 }
 
                 const result = await response.json();
@@ -38,6 +48,20 @@
                 alert('Ocorreu um erro ao atualizar a planilha. Verifique o console para mais detalhes.');
             }
         }
+
+        // Verifica se há um token de acesso no URL (após redirecionamento)
+        function checkForAccessToken() {
+            const hash = window.location.hash.substring(1);
+            const params = new URLSearchParams(hash);
+            accessToken = params.get('access_token');
+
+            if (accessToken) {
+                updateSheet();
+            }
+        }
+
+        // Verifica o token ao carregar a página
+        checkForAccessToken();
     </script>
 </body>
 </html>
