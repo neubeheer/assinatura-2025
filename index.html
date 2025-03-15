@@ -201,21 +201,21 @@
             font-size: 18px; /* Tamanho do ícone */
         }
         .export-button {
-    background-color: #007bff; /* Cor de fundo azul */
-    color: white; /* Cor do texto branco */
-    border: none;
-    padding: 10px 20px;
-    font-size: 16px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin: 20px auto; /* Centraliza o botão */
-    border-radius: 5px; /* Bordas arredondadas */
-}
-.export-button .download-icon {
-    font-size: 18px; /* Tamanho do ícone */
-}
+            background-color: #007bff; /* Cor de fundo azul */
+            color: white; /* Cor do texto branco */
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 20px auto; /* Centraliza o botão */
+            border-radius: 5px; /* Bordas arredondadas */
+        }
+        .export-button .download-icon {
+            font-size: 18px; /* Tamanho do ícone */
+        }
     </style>
     <!-- Incluir a biblioteca Signature Pad -->
     <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
@@ -285,13 +285,13 @@
     </div>
 
     <button id="export-html-button" class="export-button">
-    <span class="download-icon">📥</span>
-    Exportar HTML
-</button>
+        <span class="download-icon">📥</span>
+        Exportar HTML
+    </button>
     <button id="send-email-button" class="export-button">
-    <span class="email-icon">📧</span>
-    Enviar por E-mail
-</button>
+        <span class="email-icon">📧</span>
+        Enviar por E-mail
+    </button>
 
     <!-- Modal para assinatura do supervisor -->
     <div id="supervisor-signature-modal" class="modal">
@@ -318,7 +318,6 @@
             <button id="close-colaborador-signature-modal">Fechar</button>
         </div>
     </div>
-    
 
     <script>
         // Função para formatar a data no formato DD/MM/AAAA
@@ -477,7 +476,7 @@
             html2pdf().from(element).set(options).save();
         });
 
-        // Função para salvar o PDF no GitHub
+        // Função para salvar o PDF no GitHub e atualizar a célula K2
         document.getElementById('save-driver-button').addEventListener('click', async () => {
             // Gera o PDF
             const element = document.body;
@@ -495,14 +494,51 @@
             // Converte o blob para base64
             const reader = new FileReader();
             reader.readAsDataURL(pdfBlob);
-            reader.onloadend = () => {
+            reader.onloadend = async () => {
                 const base64Data = reader.result.split(',')[1]; // Remove o prefixo "data:application/pdf;base64,"
 
                 // Envia o PDF para o GitHub
-                uploadToGitHub(base64Data);
+                await uploadToGitHub(base64Data);
+
+                // Atualiza a célula K2 com "OK"
+                await updateSheetCell();
             };
         });
 
+        // Função para atualizar a célula K2 com "OK"
+        async function updateSheetCell() {
+            const spreadsheetId = '1mlWkSU2NgBKhs1IVi50A6ecSADbnjPeikKKGplCFaoQ'; // ID da planilha
+            const range = 'FORMATAÇÃO!K2'; // Célula K2
+            const value = 'OK'; // Valor a ser inserido
+            const token = 'SEU_TOKEN_DE_ACESSO'; // Substitua pelo seu token de acesso
+
+            const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${range}?valueInputOption=RAW`;
+
+            try {
+                const response = await fetch(url, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        range: range,
+                        values: [[value]], // Valor a ser inserido
+                    }),
+                });
+
+                if (response.ok) {
+                    console.log('Célula K2 atualizada com sucesso!');
+                } else {
+                    const errorData = await response.json();
+                    console.error('Erro ao atualizar a célula:', errorData);
+                }
+            } catch (error) {
+                console.error('Erro ao atualizar a célula:', error);
+            }
+        }
+
+        // Função para enviar o PDF para o GitHub
         async function uploadToGitHub(base64Data) {
             const repoOwner = 'neubeheer'; // Substitua pelo seu nome de usuário do GitHub
             const repoName = 'assinatura-digital'; // Substitua pelo nome do repositório
@@ -534,47 +570,47 @@
             }
         }
 
+        // Função para exportar o HTML
         document.getElementById('export-html-button').addEventListener('click', () => {
-    // Captura o conteúdo HTML da página
-    const htmlContent = document.documentElement.outerHTML;
+            // Captura o conteúdo HTML da página
+            const htmlContent = document.documentElement.outerHTML;
 
-    // Cria um blob com o conteúdo HTML
-    const blob = new Blob([htmlContent], { type: 'text/html' });
+            // Cria um blob com o conteúdo HTML
+            const blob = new Blob([htmlContent], { type: 'text/html' });
 
-    // Cria um link para download
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = 'pagina_exportada.html'; // Nome do arquivo para download
-    link.style.display = 'none';
+            // Cria um link para download
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'pagina_exportada.html'; // Nome do arquivo para download
+            link.style.display = 'none';
 
-    // Adiciona o link ao documento e simula o clique
-    document.body.appendChild(link);
-    link.click();
+            // Adiciona o link ao documento e simula o clique
+            document.body.appendChild(link);
+            link.click();
 
-    // Remove o link após o download
-    document.body.removeChild(link);
-});
+            // Remove o link após o download
+            document.body.removeChild(link);
+        });
 
+        // Função para enviar o conteúdo por e-mail
         document.getElementById('send-email-button').addEventListener('click', () => {
-    // Captura o conteúdo HTML da página
-    const htmlContent = document.documentElement.outerHTML;
+            // Captura o conteúdo HTML da página
+            const htmlContent = document.documentElement.outerHTML;
 
-    // Codifica o conteúdo HTML para uso no URI
-    const encodedHtmlContent = encodeURIComponent(htmlContent);
+            // Codifica o conteúdo HTML para uso no URI
+            const encodedHtmlContent = encodeURIComponent(htmlContent);
 
-    // Define o destinatário, assunto e corpo do e-mail
-    const recipient = 'jefferson.mk.torres@gmail.com';
-    const subject = 'Assinatura 2025';
-    const body = `Segue o conteúdo HTML em anexo:\n\n${encodedHtmlContent}`;
+            // Define o destinatário, assunto e corpo do e-mail
+            const recipient = 'jefferson.mk.torres@gmail.com';
+            const subject = 'Assinatura 2025';
+            const body = `Segue o conteúdo HTML em anexo:\n\n${encodedHtmlContent}`;
 
-    // Cria o link `mailto:` com os parâmetros
-    const mailtoLink = `mailto:${recipient}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+            // Cria o link `mailto:` com os parâmetros
+            const mailtoLink = `mailto:${recipient}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 
-    // Abre o cliente de e-mail
-    window.location.href = mailtoLink;
-});
+            // Abre o cliente de e-mail
+            window.location.href = mailtoLink;
+        });
     </script>
-
-    
 </body>
 </html>
