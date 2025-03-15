@@ -504,11 +504,11 @@
         });
 
         async function uploadToGitHub(base64Data) {
-            const repoOwner = 'SEU_USUARIO_GITHUB'; // Substitua pelo seu nome de usuário do GitHub
-            const repoName = 'NOME_DO_REPOSITORIO'; // Substitua pelo nome do repositório
-            const filePath = 'caminho/do/diretorio/feedback_driver.pdf'; // Substitua pelo caminho onde deseja salvar o arquivo
+            const repoOwner = 'neubeheer'; // Substitua pelo seu nome de usuário do GitHub
+            const repoName = 'assinatura-digital'; // Substitua pelo nome do repositório
+            const filePath = 'assinatura-digital/feedback_driver.pdf'; // Substitua pelo caminho onde deseja salvar o arquivo
             const commitMessage = 'Adiciona feedback do driver'; // Mensagem do commit
-            const token = 'SEU_TOKEN_GITHUB'; // Substitua pelo token gerado no Passo 2
+            const token = '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'; // Substitua pelo token gerado no Passo 2
 
             const url = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${filePath}`;
 
