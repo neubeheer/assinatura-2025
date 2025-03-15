@@ -530,10 +530,12 @@
         });
 
         // Função para atualizar a célula K2 com um valor específico
+
+        
         async function updateSheetCell(value) {
-            const spreadsheetId = '1mlWkSU2NgBKhs1IVi50A6ecSADbnjPeikKKGplCFaoQ'; // ID da planilha
-            const range = 'FORMATAÇÃO!K2'; // Célula K2
-            const token = 'AIzaSyDiCYaVwgq3gmuQWhZIICEJoN5iTwbo-AY'; // Substitua pelo seu token de acesso
+      const spreadsheetId = '1mlWkSU2NgBKhs1IVi50A6ecSADbnjPeikKKGplCFaoQ'; // ID da planilha
+            const range = 'FORMATAÇÃO!A2'; // Intervalo de células
+            const apiKey = 'AIzaSyDiCYaVwgq3gmuQWhZIICEJoN5iTwbo-AY'; // Sua chave de API
 
             const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${range}?valueInputOption=RAW`;
 
