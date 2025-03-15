@@ -10,7 +10,7 @@
         async function updateSheet() {
             const API_KEY = 'AIzaSyDiCYaVwgq3gmuQWhZIICEJoN5iTwbo-AY'; // Substitua pela sua chave de API
             const SPREADSHEET_ID = '1mlWkSU2NgBKhs1IVi50A6ecSADbnjPeikKKGplCFaoQ'; // Substitua pelo ID da sua planilha
-            const RANGE = 'FORMATAÇÃO!A2'; // Substitua pelo intervalo que você deseja atualizar
+            const RANGE = "'FORMATAÇÃO'!A2"; // Substitua pelo intervalo que você deseja atualizar
 
             const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${RANGE}?valueInputOption=RAW&key=${API_KEY}`;
 
