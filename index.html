@@ -200,6 +200,22 @@
         .save-driver-button .floppy-icon {
             font-size: 18px; /* Tamanho do ícone */
         }
+        .export-button {
+    background-color: #007bff; /* Cor de fundo azul */
+    color: white; /* Cor do texto branco */
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 20px auto; /* Centraliza o botão */
+    border-radius: 5px; /* Bordas arredondadas */
+}
+.export-button .download-icon {
+    font-size: 18px; /* Tamanho do ícone */
+}
     </style>
     <!-- Incluir a biblioteca Signature Pad -->
     <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
@@ -513,6 +529,27 @@
                 alert('Erro ao salvar o arquivo no GitHub.');
             }
         }
+
+        document.getElementById('export-html-button').addEventListener('click', () => {
+    // Captura o conteúdo HTML da página
+    const htmlContent = document.documentElement.outerHTML;
+
+    // Cria um blob com o conteúdo HTML
+    const blob = new Blob([htmlContent], { type: 'text/html' });
+
+    // Cria um link para download
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'pagina_exportada.html'; // Nome do arquivo para download
+    link.style.display = 'none';
+
+    // Adiciona o link ao documento e simula o clique
+    document.body.appendChild(link);
+    link.click();
+
+    // Remove o link após o download
+    document.body.removeChild(link);
+});
     </script>
 
     
