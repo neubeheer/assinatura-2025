@@ -10,23 +10,32 @@
         async function updateSheet() {
             const API_KEY = 'AIzaSyDiCYaVwgq3gmuQWhZIICEJoN5iTwbo-AY'; // Substitua pela sua chave de API
             const SPREADSHEET_ID = '1mlWkSU2NgBKhs1IVi50A6ecSADbnjPeikKKGplCFaoQ'; // Substitua pelo ID da sua planilha
-            const RANGE = "'FORMATAÇÃO'!A2"; // Substitua pelo intervalo que você deseja atualizar
+            const RANGE = 'Assinaturas!IA2'; // Substitua pelo intervalo que você deseja atualizar
 
-            const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${RANGE}?valueInputOption=RAW&key=${API_KEY}`;
+            const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${encodeURIComponent(RANGE)}?valueInputOption=RAW&key=${API_KEY}`;
 
-            const response = await fetch(url, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    values: [['Novo Valor']], // Novo valor a ser inserido
-                }),
-            });
+            try {
+                const response = await fetch(url, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        values: [['Novo Valor']], // Novo valor a ser inserido
+                    }),
+                });
 
-            const result = await response.json();
-            console.log('Célula atualizada com sucesso:', result);
-            alert('Planilha atualizada com sucesso!');
+                if (!response.ok) {
+                    throw new Error('Erro ao atualizar a planilha');
+                }
+
+                const result = await response.json();
+                console.log('Célula atualizada com sucesso:', result);
+                alert('Planilha atualizada com sucesso!');
+            } catch (error) {
+                console.error('Erro:', error);
+                alert('Ocorreu um erro ao atualizar a planilha. Verifique o console para mais detalhes.');
+            }
         }
     </script>
 </body>
