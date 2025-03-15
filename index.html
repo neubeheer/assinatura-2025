@@ -288,6 +288,10 @@
     <span class="download-icon">📥</span>
     Exportar HTML
 </button>
+    <button id="send-email-button" class="export-button">
+    <span class="email-icon">📧</span>
+    Enviar por E-mail
+</button>
 
     <!-- Modal para assinatura do supervisor -->
     <div id="supervisor-signature-modal" class="modal">
@@ -549,6 +553,25 @@
 
     // Remove o link após o download
     document.body.removeChild(link);
+});
+
+        document.getElementById('send-email-button').addEventListener('click', () => {
+    // Captura o conteúdo HTML da página
+    const htmlContent = document.documentElement.outerHTML;
+
+    // Codifica o conteúdo HTML para uso no URI
+    const encodedHtmlContent = encodeURIComponent(htmlContent);
+
+    // Define o destinatário, assunto e corpo do e-mail
+    const recipient = 'jefferson.mk.torres@gmail.com';
+    const subject = 'Assinatura 2025';
+    const body = `Segue o conteúdo HTML em anexo:\n\n${encodedHtmlContent}`;
+
+    // Cria o link `mailto:` com os parâmetros
+    const mailtoLink = `mailto:${recipient}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
+    // Abre o cliente de e-mail
+    window.location.href = mailtoLink;
 });
     </script>
 
