@@ -200,6 +200,26 @@
         .save-driver-button .floppy-icon {
             font-size: 18px; /* Tamanho do ícone */
         }
+
+        /* Estilo para o botão ASSINADO */
+        .signed-button {
+            background-color: #FFC107; /* Cor de fundo amarela */
+            color: black; /* Cor do texto preto */
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 20px auto; /* Centraliza o botão */
+            border-radius: 5px; /* Bordas arredondadas */
+        }
+        .signed-button .check-icon {
+            font-size: 18px; /* Tamanho do ícone */
+        }
+
+        /* Estilo para o botão Exportar HTML */
         .export-button {
             background-color: #007bff; /* Cor de fundo azul */
             color: white; /* Cor do texto branco */
@@ -272,7 +292,7 @@
         </div>
     </div>
 
-    <!-- Botões SALVAR e SALVAR (DRIVER) -->
+    <!-- Botões SALVAR, SALVAR (DRIVER) e ASSINADO -->
     <div style="display: flex; justify-content: center; gap: 20px;">
         <button id="save-button" class="save-button">
             <span class="floppy-icon">💾</span>
@@ -281,6 +301,10 @@
         <button id="save-driver-button" class="save-driver-button">
             <span class="floppy-icon">💾</span>
             SALVAR (DRIVER)
+        </button>
+        <button id="signed-button" class="signed-button">
+            <span class="check-icon">✔️</span>
+            ASSINADO
         </button>
     </div>
 
@@ -501,15 +525,14 @@
                 await uploadToGitHub(base64Data);
 
                 // Atualiza a célula K2 com "OK"
-                await updateSheetCell();
+                await updateSheetCell('OK');
             };
         });
 
-        // Função para atualizar a célula K2 com "OK"
-        async function updateSheetCell() {
+        // Função para atualizar a célula K2 com um valor específico
+        async function updateSheetCell(value) {
             const spreadsheetId = '1mlWkSU2NgBKhs1IVi50A6ecSADbnjPeikKKGplCFaoQ'; // ID da planilha
             const range = 'FORMATAÇÃO!K2'; // Célula K2
-            const value = 'OK'; // Valor a ser inserido
             const token = 'SEU_TOKEN_DE_ACESSO'; // Substitua pelo seu token de acesso
 
             const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${range}?valueInputOption=RAW`;
@@ -528,7 +551,7 @@
                 });
 
                 if (response.ok) {
-                    console.log('Célula K2 atualizada com sucesso!');
+                    console.log(`Célula K2 atualizada com sucesso: ${value}`);
                 } else {
                     const errorData = await response.json();
                     console.error('Erro ao atualizar a célula:', errorData);
@@ -610,6 +633,12 @@
 
             // Abre o cliente de e-mail
             window.location.href = mailtoLink;
+        });
+
+        // Função para marcar como "Assinado"
+        document.getElementById('signed-button').addEventListener('click', async () => {
+            await updateSheetCell('Assinado'); // Atualiza a célula K2 com "Assinado"
+            alert('Célula K2 marcada como "Assinado" com sucesso!');
         });
     </script>
 </body>
