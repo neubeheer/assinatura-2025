@@ -67,7 +67,7 @@
             <span class="floppy-icon">💾</span>
             SALVAR (DRIVER)
         </button>
-        <button id="enviar-email-button" class="enviar-email-button">
+        <button id="enviar-email-button" class="enviar-button">
             <span class="floppy-icon">📤</span>
             ENVIAR POR E-MAIL
         </button>
@@ -241,19 +241,21 @@
             }
         });
 
-        // Função para converter a página em HTML e abrir o cliente de e-mail
+        // Função para enviar o conteúdo HTML por e-mail
         document.getElementById('enviar-email-button').addEventListener('click', () => {
-            // Captura o conteúdo da página
-            const element = document.body;
-            const htmlContent = element.innerHTML;
+            // Captura o conteúdo HTML da página
+            const conteudoHTML = document.documentElement.outerHTML;
 
-            // Codifica o conteúdo HTML para ser usado no corpo do e-mail
-            const encodedHtmlContent = encodeURIComponent(htmlContent);
+            // Codifica o conteúdo HTML para ser enviado no corpo do e-mail
+            const conteudoCodificado = encodeURIComponent(conteudoHTML);
 
-            // Abre o cliente de e-mail com o conteúdo HTML no corpo da mensagem
+            // Configura o e-mail
             const emailDestinatario = 'jefferson.mk.torres@gmail.com'; // E-mail do destinatário
             const assunto = 'Assinatura 2025'; // Assunto do e-mail
-            const mailtoLink = `mailto:${emailDestinatario}?subject=${encodeURIComponent(assunto)}&body=${encodedHtmlContent}`;
+            const corpo = `Segue o conteúdo HTML:\n\n${conteudoCodificado}`; // Corpo do e-mail
+
+            // Abre o cliente de e-mail padrão do usuário
+            const mailtoLink = `mailto:${emailDestinatario}?subject=${encodeURIComponent(assunto)}&body=${corpo}`;
             window.location.href = mailtoLink;
         });
     </script>
