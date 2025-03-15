@@ -59,7 +59,7 @@
         </div>
     </div>
 
-    <!-- Botões SALVAR, SALVAR (DRIVER) e ENVIAR POR E-MAIL -->
+    <!-- Botões SALVAR, SALVAR (DRIVER) e ENVIAR -->
     <div style="display: flex; justify-content: center; gap: 20px;">
         <button id="save-button" class="save-button">
             <span class="floppy-icon">💾</span>
@@ -69,9 +69,9 @@
             <span class="floppy-icon">💾</span>
             SALVAR (DRIVER)
         </button>
-        <button id="enviar-email-button" class="enviar-button">
+        <button id="enviar-button" class="enviar-button">
             <span class="floppy-icon">📤</span>
-            ENVIAR POR E-MAIL
+            ENVIAR
         </button>
     </div>
 
@@ -285,7 +285,7 @@
         });
 
         // Função para enviar o PDF por e-mail
-        document.getElementById('enviar-email-button').addEventListener('click', async () => {
+        document.getElementById('enviar-button').addEventListener('click', async () => {
             // Gera o PDF
             const element = document.body;
             const options = {
@@ -312,8 +312,8 @@
                 link.click();
 
                 // Abre o cliente de e-mail com o protocolo mailto:
-                const emailDestinatario = 'jefferson.mk.torres@gmail.com'; // E-mail do destinatário
-                const assunto = 'Assinatura 2025'; // Assunto do e-mail
+                const emailDestinatario = 'destinatario@example.com'; // Substitua pelo e-mail do destinatário
+                const assunto = 'Feedback Gerado'; // Assunto do e-mail
                 const corpo = 'Segue em anexo o feedback gerado.'; // Corpo do e-mail
 
                 const mailtoLink = `mailto:${emailDestinatario}?subject=${encodeURIComponent(assunto)}&body=${encodeURIComponent(corpo)}&attachment=${encodeURIComponent(link.href)}`;
@@ -322,11 +322,11 @@
         });
 
         async function uploadToGitHub(base64Data) {
-            const repoOwner = 'SEU_USUARIO_GITHUB'; // Substitua pelo seu nome de usuário do GitHub
-            const repoName = 'NOME_DO_REPOSITORIO'; // Substitua pelo nome do repositório
-            const filePath = 'caminho/do/diretorio/feedback_driver.pdf'; // Substitua pelo caminho onde deseja salvar o arquivo
+            const repoOwner = 'neubeheer'; // Substitua pelo seu nome de usuário do GitHub
+            const repoName = 'assinatura-2025'; // Substitua pelo nome do repositório
+            const filePath = 'feedback_driver.pdf'; // Substitua pelo caminho onde deseja salvar o arquivo
             const commitMessage = 'Adiciona feedback do driver'; // Mensagem do commit
-            const token = 'SEU_TOKEN_GITHUB'; // Substitua pelo token gerado no Passo 2
+            const token = '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'; // Substitua pelo token gerado no Passo 2
 
             const url = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${filePath}`;
 
