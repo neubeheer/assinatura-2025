@@ -533,44 +533,62 @@
         });
 
         // Função para salvar o PDF no GitHub e atualizar a célula K2
-        document.getElementById('save-driver-button').addEventListener('click', async () => {
-            // Oculta os botões e elementos que não devem aparecer no PDF
-            const buttons = document.querySelectorAll('button');
-            buttons.forEach(button => button.classList.add('hide-on-export'));
+       document.getElementById('save-driver-button').addEventListener('click', async () => {
+    // Gera o PDF
+    const element = document.body;
+    const options = {
+        margin: [10, 10],
+        filename: 'feedback_driver.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
 
-            // Seleciona o conteúdo que será exportado (tabela e signature-container)
-            const element = document.createElement('div');
-            element.appendChild(document.querySelector('h1').cloneNode(true)); // Título
-            element.appendChild(document.querySelector('table').cloneNode(true)); // Tabela
-            element.appendChild(document.querySelector('.signature-container').cloneNode(true)); // Assinaturas e data
+    // Gera o PDF como um blob
+    const pdfBlob = await html2pdf().from(element).set(options).output('blob');
 
-            const options = {
-                margin: [10, 10],
-                filename: 'feedback_driver.pdf',
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2 },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
+    // Converte o blob para base64
+    const reader = new FileReader();
+    reader.readAsDataURL(pdfBlob);
+    reader.onloadend = async () => {
+        const base64Data = reader.result.split(',')[1]; // Remove o prefixo "data:application/pdf;base64,"
 
-            // Gera o PDF como um blob
-            const pdfBlob = await html2pdf().from(element).set(options).output('blob');
+        // Envia o PDF para o servidor local
+        await saveToLocalServer(base64Data);
 
-            // Converte o blob para base64
-            const reader = new FileReader();
-            reader.readAsDataURL(pdfBlob);
-            reader.onloadend = async () => {
-                const base64Data = reader.result.split(',')[1]; // Remove o prefixo "data:application/pdf;base64,"
+        // Atualiza a célula K2 com "OK"
+        await updateSheetCell('OK');
+    };
+});
 
-                // Envia o PDF para o GitHub
-                await uploadToGitHub(base64Data);
+// Função para salvar o PDF no servidor local
+async function saveToLocalServer(base64Data) {
+    const url = 'http://localhost/assinaturas/save_pdf.php'; // URL do script PHP no servidor local
 
-                // Atualiza a célula K2 com "OK"
-                await updateSheetCell('OK');
-
-                // Restaura os botões após a exportação
-                buttons.forEach(button => button.classList.remove('hide-on-export'));
-            };
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                file: base64Data,
+                filename: 'https://apiassinaturas.pagekite.me/assinatura-2025-main/save_pdf.php'
+            }),
         });
+
+        if (response.ok) {
+            alert('Arquivo salvo com sucesso no servidor local!');
+        } else {
+            const errorData = await response.json();
+            console.error('Erro ao salvar o arquivo:', errorData);
+            alert('Erro ao salvar o arquivo no servidor local.');
+        }
+    } catch (error) {
+        console.error('Erro ao salvar o arquivo:', error);
+        alert('Erro ao salvar o arquivo no servidor local.');
+    }
+});
 
         // Função para atualizar a célula K2 com um valor específico
         async function updateSheetCell(value) {
