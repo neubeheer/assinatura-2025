@@ -532,63 +532,63 @@
                 });
         });
 
-        // Função para salvar o PDF no GitHub e atualizar a célula K2
-       document.getElementById('save-driver-button').addEventListener('click', async () => {
-    // Gera o PDF
-    const element = document.body;
-    const options = {
-        margin: [10, 10],
-        filename: 'feedback_driver.pdf',
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2 },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-    };
+        // Função para salvar o PDF no servidor local
+        document.getElementById('save-driver-button').addEventListener('click', async () => {
+            // Gera o PDF
+            const element = document.body;
+            const options = {
+                margin: [10, 10],
+                filename: 'feedback_driver.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
 
-    // Gera o PDF como um blob
-    const pdfBlob = await html2pdf().from(element).set(options).output('blob');
+            // Gera o PDF como um blob
+            const pdfBlob = await html2pdf().from(element).set(options).output('blob');
 
-    // Converte o blob para base64
-    const reader = new FileReader();
-    reader.readAsDataURL(pdfBlob);
-    reader.onloadend = async () => {
-        const base64Data = reader.result.split(',')[1]; // Remove o prefixo "data:application/pdf;base64,"
+            // Converte o blob para base64
+            const reader = new FileReader();
+            reader.readAsDataURL(pdfBlob);
+            reader.onloadend = async () => {
+                const base64Data = reader.result.split(',')[1]; // Remove o prefixo "data:application/pdf;base64,"
 
-        // Envia o PDF para o servidor local
-        await saveToLocalServer(base64Data);
+                // Envia o PDF para o servidor local
+                await saveToLocalServer(base64Data);
 
-        // Atualiza a célula K2 com "OK"
-        await updateSheetCell('OK');
-    };
-});
-
-// Função para salvar o PDF no servidor local
-async function saveToLocalServer(base64Data) {
-    const url = 'http://localhost/assinaturas/save_pdf.php'; // URL do script PHP no servidor local
-
-    try {
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                file: base64Data,
-                filename: 'https://apiassinaturas.pagekite.me/assinatura-2025-main/save_pdf.php'
-            }),
+                // Atualiza a célula K2 com "OK"
+                await updateSheetCell('OK');
+            };
         });
 
-        if (response.ok) {
-            alert('Arquivo salvo com sucesso no servidor local!');
-        } else {
-            const errorData = await response.json();
-            console.error('Erro ao salvar o arquivo:', errorData);
-            alert('Erro ao salvar o arquivo no servidor local.');
+        // Função para salvar o PDF no servidor local
+        async function saveToLocalServer(base64Data) {
+            const url = 'https://apiassinaturas.pagekite.me/assinatura-2025-main/save_pdf.php'; // URL do script PHP no servidor local
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        file: base64Data,
+                        filename: 'feedback_driver.pdf'
+                    }),
+                });
+
+                if (response.ok) {
+                    alert('Arquivo salvo com sucesso no servidor local!');
+                } else {
+                    const errorData = await response.json();
+                    console.error('Erro ao salvar o arquivo:', errorData);
+                    alert('Erro ao salvar o arquivo no servidor local.');
+                }
+            } catch (error) {
+                console.error('Erro ao salvar o arquivo:', error);
+                alert('Erro ao salvar o arquivo no servidor local.');
+            }
         }
-    } catch (error) {
-        console.error('Erro ao salvar o arquivo:', error);
-        alert('Erro ao salvar o arquivo no servidor local.');
-    }
-});
 
         // Função para atualizar a célula K2 com um valor específico
         async function updateSheetCell(value) {
@@ -619,38 +619,6 @@ async function saveToLocalServer(base64Data) {
                 }
             } catch (error) {
                 console.error('Erro ao atualizar a célula:', error);
-            }
-        }
-
-        // Função para enviar o PDF para o GitHub
-        async function uploadToGitHub(base64Data) {
-            const repoOwner = 'neubeheer'; // Substitua pelo seu nome de usuário do GitHub
-            const repoName = 'assinatura-digital'; // Substitua pelo nome do repositório
-            const filePath = 'feedback_driver.pdf'; // Substitua pelo caminho onde deseja salvar o arquivo
-            const commitMessage = 'Adiciona feedback do driver'; // Mensagem do commit
-            const token = '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'; // Substitua pelo token gerado no Passo 2
-
-            const url = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${filePath}`;
-
-            const response = await fetch(url, {
-                method: 'PUT',
-                headers: {
-                    'Authorization': `token ${token}`,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    message: commitMessage,
-                    content: base64Data,
-                    branch: 'main', // Ou a branch que você deseja usar
-                }),
-            });
-
-            if (response.ok) {
-                alert('Arquivo salvo com sucesso no GitHub!');
-            } else {
-                const errorData = await response.json();
-                console.error('Erro ao salvar o arquivo:', errorData);
-                alert('Erro ao salvar o arquivo no GitHub.');
             }
         }
 
