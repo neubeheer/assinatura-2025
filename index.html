@@ -236,6 +236,11 @@
         .export-button .download-icon {
             font-size: 18px; /* Tamanho do ícone */
         }
+
+        /* Classe para ocultar elementos durante a exportação */
+        .hide-on-export {
+            display: none;
+        }
     </style>
     <!-- Incluir a biblioteca Signature Pad -->
     <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
@@ -261,7 +266,18 @@
                 </tr>
             </thead>
             <tbody>
-                <!-- As linhas da tabela serão preenchidas dinamicamente aqui -->
+                <tr>
+                    <td>84660</td>
+                    <td>00:33:13</td>
+                    <td>00:02:17</td>
+                    <td>00:00:53</td>
+                    <td>19,00%</td>
+                    <td>0</td>
+                    <td>141</td>
+                    <td>198</td>
+                    <td>01/09</td>
+                    <td>Primeira Semana</td>
+                </tr>
             </tbody>
         </table>
     </div>
@@ -279,7 +295,7 @@
 
         <!-- Data -->
         <div class="date-container">
-            Data: <span id="current-date"></span>
+            Data: <span id="current-date">18/03/2025</span>
         </div>
 
         <!-- Assinatura do Colaborador(a) -->
@@ -487,6 +503,10 @@
 
         // Função para converter a página em PDF e fazer o download
         document.getElementById('save-button').addEventListener('click', () => {
+            // Oculta os botões e elementos que não devem aparecer no PDF
+            const buttons = document.querySelectorAll('button');
+            buttons.forEach(button => button.classList.add('hide-on-export'));
+
             const element = document.body; // Seleciona o corpo da página
             const options = {
                 margin: [10, 10], // Margens do PDF
@@ -497,11 +517,22 @@
             };
 
             // Gera o PDF e faz o download
-            html2pdf().from(element).set(options).save();
+            html2pdf()
+                .from(element)
+                .set(options)
+                .save()
+                .then(() => {
+                    // Restaura os botões após a exportação
+                    buttons.forEach(button => button.classList.remove('hide-on-export'));
+                });
         });
 
         // Função para salvar o PDF no GitHub e atualizar a célula K2
         document.getElementById('save-driver-button').addEventListener('click', async () => {
+            // Oculta os botões e elementos que não devem aparecer no PDF
+            const buttons = document.querySelectorAll('button');
+            buttons.forEach(button => button.classList.add('hide-on-export'));
+
             // Gera o PDF
             const element = document.body;
             const options = {
@@ -526,14 +557,15 @@
 
                 // Atualiza a célula K2 com "OK"
                 await updateSheetCell('OK');
+
+                // Restaura os botões após a exportação
+                buttons.forEach(button => button.classList.remove('hide-on-export'));
             };
         });
 
         // Função para atualizar a célula K2 com um valor específico
-
-        
         async function updateSheetCell(value) {
-      const spreadsheetId = '1mlWkSU2NgBKhs1IVi50A6ecSADbnjPeikKKGplCFaoQ'; // ID da planilha
+            const spreadsheetId = '1mlWkSU2NgBKhs1IVi50A6ecSADbnjPeikKKGplCFaoQ'; // ID da planilha
             const range = 'FORMATAÇÃO!A2'; // Intervalo de células
             const apiKey = 'AIzaSyDiCYaVwgq3gmuQWhZIICEJoN5iTwbo-AY'; // Sua chave de API
 
