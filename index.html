@@ -507,7 +507,12 @@
             const buttons = document.querySelectorAll('button');
             buttons.forEach(button => button.classList.add('hide-on-export'));
 
-            const element = document.body; // Seleciona o corpo da página
+            // Seleciona o conteúdo que será exportado (tabela e signature-container)
+            const element = document.createElement('div');
+            element.appendChild(document.querySelector('h1').cloneNode(true)); // Título
+            element.appendChild(document.querySelector('table').cloneNode(true)); // Tabela
+            element.appendChild(document.querySelector('.signature-container').cloneNode(true)); // Assinaturas e data
+
             const options = {
                 margin: [10, 10], // Margens do PDF
                 filename: 'feedback.pdf', // Nome do arquivo
@@ -533,8 +538,12 @@
             const buttons = document.querySelectorAll('button');
             buttons.forEach(button => button.classList.add('hide-on-export'));
 
-            // Gera o PDF
-            const element = document.body;
+            // Seleciona o conteúdo que será exportado (tabela e signature-container)
+            const element = document.createElement('div');
+            element.appendChild(document.querySelector('h1').cloneNode(true)); // Título
+            element.appendChild(document.querySelector('table').cloneNode(true)); // Tabela
+            element.appendChild(document.querySelector('.signature-container').cloneNode(true)); // Assinaturas e data
+
             const options = {
                 margin: [10, 10],
                 filename: 'feedback_driver.pdf',
